@@ -23,20 +23,19 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      // ← Express backend ko bhejo
       const res = await authAPI.login(form.username, form.password);
 
-      if (res.ok) {
+      if (res.status === 200) {
         setStatus("success");
-        setTimeout(() => router.push("/admin"), 800);
-      } else {
-        const data = await res.json();
-        setError(data.error || "Invalid credentials");
-        setStatus("error");
+        router.push("/admin");
       }
-    } catch {
-      setError("Server se connect nahi ho pa raha. Dobara try karo.");
+    } catch (err: any) {
       setStatus("error");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Server se connect nahi ho pa raha. Dobara try karo.");
+      }
     }
   };
 

@@ -13,12 +13,13 @@ router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    // simple token
     const token = Buffer.from(`${username}:${Date.now()}`).toString("base64");
 
     res.cookie(SESSION_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      httpOnly: true, // JS cannot access
+      secure: process.env.NODE_ENV === "production", // only HTTPS in prod
+      sameSite: "none", // 🔥 cross-domain cookie
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -30,7 +31,11 @@ router.post("/login", (req, res) => {
 
 // DELETE /api/auth/logout
 router.delete("/logout", (req, res) => {
-  res.clearCookie(SESSION_COOKIE);
+  res.clearCookie(SESSION_COOKIE, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+  });
   res.json({ success: true, message: "Logged out" });
 });
 

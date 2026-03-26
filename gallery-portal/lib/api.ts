@@ -10,16 +10,33 @@ async function request(path: string, options?: RequestInit) {
 
 // ── Auth ──
 export const authAPI = {
-  login: (username: string, password: string) =>
-    request("/api/auth/login", {
+  login: async (username: string, password: string) => {
+    const res = await request("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
-    }),
+    });
 
-  logout: () => request("/api/auth/logout", { method: "DELETE" }),
+    // agar 200 nahi hai, error throw karo
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Login failed");
+    }
 
-  check: () => request("/api/auth/check"),
+    return res;
+  },
+
+  logout: async () => {
+    const res = await request("/api/auth/logout", { method: "DELETE" });
+    if (!res.ok) throw new Error("Logout failed");
+    return res;
+  },
+
+  check: async () => {
+    const res = await request("/api/auth/check");
+    if (!res.ok) throw new Error("Not authenticated");
+    return res;
+  },
 };
 
 // ── Files ──

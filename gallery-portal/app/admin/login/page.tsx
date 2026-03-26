@@ -147,10 +147,6 @@ export default function AdminLoginPage() {
               {status === "loading" ? "Verifying..." : status === "success" ? "Access Granted!" : "Login to Admin"}
             </motion.button>
           </form>
-
-          <p style={{ textAlign: "center", fontSize: 11.5, color: "var(--text-faint)", marginTop: 20, fontFamily: "'JetBrains Mono', monospace" }}>
-            Default: admin / medivault2024
-          </p>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 16, fontSize: 11.5, color: "var(--text-faint)" }}>

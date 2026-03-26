@@ -5,7 +5,7 @@ import { requireAuth } from "../middleware/auth.js";
 const router = express.Router();
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "medivault2024";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "medivault2026";
 const SESSION_COOKIE = "mv_admin_session";
 
 // POST /api/auth/login

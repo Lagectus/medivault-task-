@@ -13,31 +13,26 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.username || !form.password) {
-      setError("Username aur password dono required hain.");
-      setStatus("error");
-      return;
-    }
-    setStatus("loading");
-    setError("");
+  e.preventDefault();
+  if (!form.username || !form.password) {
+    setError("Username aur password dono required hain.");
+    setStatus("error");
+    return;
+  }
+  setStatus("loading");
+  setError("");
 
-    try {
-      const res = await authAPI.login(form.username, form.password);
-
-      if (res.status === 200) {
-        setStatus("success");
-        router.push("/admin");
-      }
-    } catch (err: any) {
-      setStatus("error");
-      if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else {
-        setError("Server se connect nahi ho pa raha. Dobara try karo.");
-      }
+  try {
+    const res = await authAPI.login(form.username, form.password);
+    if (res.ok) {
+      setStatus("success");
+      setTimeout(() => router.push("/admin"), 800);
     }
-  };
+  } catch (err: any) {
+    setStatus("error");
+    setError(err.message || "Server se connect nahi ho pa raha. Dobara try karo.");
+  }
+};
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>

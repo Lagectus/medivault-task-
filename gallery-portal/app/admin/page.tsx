@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation"; // ✅ add kiya
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import {
@@ -20,6 +21,7 @@ import { filesAPI, statsAPI } from "@/lib/api";
 type AdminTab = "overview" | "files" | "analytics";
 
 export default function AdminPage() {
+  const router = useRouter(); // ✅ add kiya
   const [tab, setTab] = useState<AdminTab>("overview");
   const [files, setFiles] = useState<MedicalFile[]>([]);
   const [filteredFiles, setFilteredFiles] = useState<MedicalFile[]>([]);
@@ -43,7 +45,15 @@ export default function AdminPage() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  // ✅ Single useEffect — auth check + fetchAll dono yahan
+  useEffect(() => {
+    const token = localStorage.getItem("mv_token");
+    if (!token) {
+      router.push("/admin/login");
+      return;
+    }
+    fetchAll();
+  }, [fetchAll]); // ✅ duplicate useEffect hataaya
 
   useEffect(() => {
     let result = [...files];
@@ -77,11 +87,7 @@ export default function AdminPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-base)" }}>
       <Navbar />
-
-      {/* ── Desktop layout ── */}
       <div className="admin-layout">
-
-        {/* Sidebar — hidden on mobile */}
         <aside ref={sidebarRef} className="admin-sidebar">
           <div className="card" style={{ padding: 14, position: "sticky", top: 82 }}>
             <div className="sb-item" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 10px 14px", borderBottom: "1px solid var(--bg-surface-2)", marginBottom: 8, opacity: 0 }}>
@@ -112,11 +118,9 @@ export default function AdminPage() {
           </div>
         </aside>
 
-        {/* Main content */}
         <main style={{ flex: 1, minWidth: 0 }}>
           <AnimatePresence mode="wait">
 
-            {/* Overview */}
             {tab === "overview" && (
               <motion.div key="overview" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, gap: 12 }}>
@@ -129,14 +133,12 @@ export default function AdminPage() {
                       <RefreshCw style={{ width: 13, height: 13 }} strokeWidth={2} />
                       <span className="hide-mobile">Refresh</span>
                     </motion.button>
-                    {/* Upload button visible on mobile (sidebar hidden) */}
                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setUploadOpen(true)} className="btn-primary show-mobile" style={{ fontSize: 13, padding: "8px 14px" }}>
                       <Plus style={{ width: 15, height: 15 }} strokeWidth={2.5} />
                     </motion.button>
                   </div>
                 </div>
 
-                {/* Stats grid — 2 cols on mobile, 4 on desktop */}
                 <div className="stats-grid">
                   <StatsCard label="Total Files"  value={stats?.totalFiles || 0}  icon={FileImage} color="#0369A1" bgColor="#EFF6FF" borderColor="#BFDBFE" trend="All uploaded files" index={0} />
                   <StatsCard label="Total Views"  value={stats?.totalViews || 0}  icon={Eye}       color="#059669" bgColor="#ECFDF5" borderColor="#A7F3D0" trend="Across all files"  index={1} />
@@ -144,7 +146,6 @@ export default function AdminPage() {
                   <StatsCard label="Storage" value={formatFileSize(files.reduce((a, f) => a + f.fileSize, 0))} icon={HardDrive} color="#B45309" bgColor="#FFFBEB" borderColor="#FDE68A" trend="Total disk usage" index={3} />
                 </div>
 
-                {/* Two-col panel — stacks on mobile */}
                 <div className="admin-two-col" style={{ marginBottom: 16, marginTop: 16 }}>
                   <div className="card" style={{ padding: "22px 24px" }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}>
@@ -194,7 +195,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Upload CTA */}
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} style={{ background: "linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%)", border: "1px solid #BFDBFE", borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                   <div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>Ready to upload new files?</p>
@@ -208,7 +208,6 @@ export default function AdminPage() {
               </motion.div>
             )}
 
-            {/* Files */}
             {tab === "files" && (
               <motion.div key="files" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, gap: 12 }}>
@@ -237,7 +236,6 @@ export default function AdminPage() {
               </motion.div>
             )}
 
-            {/* Analytics */}
             {tab === "analytics" && (
               <motion.div key="analytics" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
                 <div style={{ marginBottom: 20 }}>
@@ -323,7 +321,6 @@ export default function AdminPage() {
         </main>
       </div>
 
-      {/* ── Mobile bottom tab bar ── */}
       <nav className="mobile-tab-bar">
         {sidebarTabs.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)} className={`mobile-tab-item ${tab === id ? "active" : ""}`}>

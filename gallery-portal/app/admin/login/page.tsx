@@ -23,14 +23,12 @@ export default function AdminLoginPage() {
   setError("");
 
   try {
-    const res = await authAPI.login(form.username, form.password);
-    if (res.ok) {
-      setStatus("success");
-      setTimeout(() => router.push("/admin"), 800);
-    }
+    await authAPI.login(form.username, form.password);
+    setStatus("success");
+    setTimeout(() => router.push("/admin"), 800);
   } catch (err: any) {
     setStatus("error");
-    setError(err.message || "Server se connect nahi ho pa raha. Dobara try karo.");
+    setError(err.message || "Server se connect nahi ho pa raha.");
   }
 };
 
